@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<head>
+    <title>webChanelDemo</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="./qwebchannel.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+
+            // 浏览器内核自带
+            new QWebChannel(qt.webChannelTransport, function (channel) {
+
+                // 获取 Qt 通道类 ...
+                var context = channel.objects.context; // 注册对象名
+
+                // 通过 Qt 通道类 JSSendMessage 函数向 Qt 发送消息
+                $("#_login_").click(function () {
+                    var name = document.getElementById("_username_").value;
+                    var passwd = document.getElementById("_password_").value;
+                    context.JSSendMessage(name, passwd); // 发送消息
+                });
+
+                // 接收 Qt 发来的数据 ...
+                context.SigSendMessageToJS.connect(function (str) {
+                    if (str == "ok") alert("success");
+                });
+                $("#send").click(function(){
+                    context.JSSendMessage1("ok");
+                });
+                context.SigReceivedMessFromJS.connect(function(str){
+                    alert("SigReceivedMessFromJS" + str);
+                })
+
+            });
+
+        };
+    </script>
+</head>
+
+<body>
+    <form>
+        <label for="name">username</label>
+        <input type="text" id="_username_" name="username" required>
+        <br>
+        <label for="passwd">password</label>
+        <input type="password" id="_password_" name="passwd" required>
+        <br>
+        <input type="submit" id="_login_" value="submit"></label>
+    </form>
+    <button id="send">send</button>
+</body>
